@@ -1,4 +1,5 @@
-const API_URL = "http://localhost:5053/api";
+const API_URL =
+    import.meta.env.VITE_API_URL || "http://localhost:5053/api";
 
 type RequestOptions = RequestInit & {
     auth?: boolean;
@@ -12,12 +13,10 @@ async function request<T>(
 
     const headers = new Headers(options.headers);
 
-    // إذا كان الطلب يحتوي JSON
     if (!(options.body instanceof FormData)) {
         headers.set("Content-Type", "application/json");
     }
 
-    // إضافة JWT تلقائياً للطلبات المحمية
     if (options.auth && token) {
         headers.set("Authorization", `Bearer ${ token }`);
     }
@@ -27,7 +26,6 @@ async function request<T>(
         headers,
     });
 
-    // No Content
     if (response.status === 204) {
         return undefined as T;
     }
