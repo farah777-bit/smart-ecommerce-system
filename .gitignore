@@ -1,0 +1,26 @@
+# Backend - ASP.NET
+Backend/bin/
+Backend/obj/
+
+# Frontend - React
+Frontend/node_modules/
+Frontend/dist/
+
+# Visual Studio
+.vs/
+
+# VS Code
+.vscode/
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# User-specific files
+*.user
+*.suo
+
+# OS files
+.DS_Store
+Thumbs.db

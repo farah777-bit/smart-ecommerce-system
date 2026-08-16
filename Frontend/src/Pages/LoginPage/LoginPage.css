@@ -1,0 +1,177 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+.login-container {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.login-image {
+    flex: 1;
+    background-color: #eef5ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+.login-image img {
+    width: 80%;
+    max-width: 500px;
+}
+
+.login-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px;
+}
+
+.login-card h1 {
+    color: #1e3a8a;
+    margin-bottom: 10px;
+}
+
+.login-card>p {
+    color: #666;
+    margin-bottom: 25px;
+}
+
+.login-card form {
+    width: 100%;
+}
+
+.login-card label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+.login-card input[type="email"],
+.login-card input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 18px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+}
+
+.login-card input:focus {
+    border-color: #2563eb;
+}
+
+.login-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.login-options label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 0;
+    font-weight: normal;
+}
+
+.login-options a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.login-card button {
+    width: 100%;
+    padding: 12px;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.login-card button:hover {
+    background-color: #1d4ed8;
+}
+
+.register {
+    text-align: center;
+    margin-top: 20px;
+    color: #666;
+}
+
+.register a {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+    .login-card {
+        padding: 40px;
+    }
+
+    .login-image {
+        padding: 25px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+    .login-container {
+        flex-direction: column;
+    }
+
+    .login-image {
+        display: none;
+    }
+
+    .login-card {
+        width: 100%;
+        min-height: 100vh;
+        padding: 30px 20px;
+    }
+
+    .login-card h1 {
+        font-size: 28px;
+        text-align: center;
+    }
+
+    .login-card>p {
+        text-align: center;
+        font-size: 14px;
+    }
+
+    .login-options {
+        gap: 15px;
+    }
+}
+
+/* Small mobile */
+@media (max-width: 400px) {
+    .login-card {
+        padding: 24px 15px;
+    }
+
+    .login-card h1 {
+        font-size: 24px;
+    }
+
+    .login-options {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+.login-options label input{
+    margin-right: 5px;
+}
