@@ -9,7 +9,7 @@ async function request<T>(
     endpoint: string,
     options: RequestOptions = {}
 ): Promise<T> {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token")|| sessionStorage.getItem("token");
 
     const headers = new Headers(options.headers);
 

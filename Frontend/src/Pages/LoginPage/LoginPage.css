@@ -54,7 +54,8 @@
 }
 
 .login-card input[type="email"],
-.login-card input[type="password"] {
+.login-card input[type="password"],
+.login-card input[type="text"] {
     width: 100%;
     padding: 12px;
     margin-bottom: 18px;
@@ -88,7 +89,7 @@
     text-decoration: none;
 }
 
-.login-card button {
+.login-card button.submit {
     width: 100%;
     padding: 12px;
     background-color: #2563eb;
@@ -174,4 +175,40 @@
 }
 .login-options label input{
     margin-right: 5px;
+}
+.password-input-container {
+    position: relative;
+    width: 100%;
+}
+
+.password-input-container input {
+    width: 100%;
+    padding-right: 45px;
+    box-sizing: border-box;
+}
+
+.password-toggle {
+    position: absolute;
+    top: 35%;
+    right: 14px;
+    transform: translateY(-50%);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: auto;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+
+    color: #777;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.password-toggle:hover {
+    color: #333;
+    background: transparent;
 }

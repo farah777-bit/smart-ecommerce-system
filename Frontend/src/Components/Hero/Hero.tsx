@@ -1,5 +1,6 @@
 import "./Hero.css";
 import heroImage from "../../assets/images/heroImage.jpg";
+import { Link } from "react-router-dom";
 
 function Hero() {
     return (
@@ -20,9 +21,9 @@ function Hero() {
                 </p>
 
                 <div className="hero-buttons">
-                    <button className="primary-btn">
+                    <Link to="/products" className="primary-btn">
                         Explore Products
-                    </button>
+                    </Link>
 
                     <button className="secondary-btn">
                         AI Search
