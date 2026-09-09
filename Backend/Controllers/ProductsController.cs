@@ -39,10 +39,10 @@ public class ProductsController : ControllerBase
 
     // GET: api/products/{id}
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<ProductDto>> GetProduct(int id)
+    public async Task<ActionResult<ProductDetailsDto>> GetProduct(int id)
     {
         var product =
-            await _productService.GetProductAsync(id);
+            await _productService.GetProductDetailsAsync(id);
 
         if (product == null)
         {

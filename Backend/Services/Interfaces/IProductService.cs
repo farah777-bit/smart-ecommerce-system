@@ -23,4 +23,6 @@ public interface IProductService
     );
 
     Task<bool> DeleteProductAsync(int id);
+
+    Task<ProductDetailsDto?> GetProductDetailsAsync(int id);
 }

@@ -1,5 +1,6 @@
 using Backend.Data;
 using Backend.DTOs.ProductDTOs;
+using Backend.DTOs.ProductImageDTOs;
 using Backend.Models;
 using Backend.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -149,5 +150,68 @@ public class ProductRepository : IProductRepository
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<ProductDetailsDto?> GetDetailsByIdAsync(int id)
+    {
+        return await _context.Products
+            .AsNoTracking()
+            .Where(p => p.Id == id)
+            .Select(p => new ProductDetailsDto
+            {
+                Id = p.Id,
+                CategoryId = p.CategoryId,
+                CategoryName = p.Category.Name,
+                Name = p.Name,
+                Description = p.Description,
+                SeoTitle = p.SeoTitle,
+                SeoDescription = p.SeoDescription,
+                Price = p.Price,
+                StockQuantity = p.StockQuantity,
+                LowStockThreshold = p.LowStockThreshold,
+                IsActive = p.IsActive,
+                CreatedAt = p.CreatedAt,
+                UpdatedAt = p.UpdatedAt,
+
+                PrimaryImageUrl = p.Images
+                    .Where(image => image.IsPrimary)
+                    .Select(image => image.ImageUrl)
+                    .FirstOrDefault(),
+
+                Images = p.Images
+                    .OrderByDescending(image => image.IsPrimary)
+                    .ThenBy(image => image.Id)
+                    .Select(image => new ProductImageDto
+                    {
+                        Id = image.Id,
+                        ProductId = image.ProductId,
+                        ImageUrl = image.ImageUrl,
+                        IsPrimary = image.IsPrimary
+                    })
+                    .ToList(),
+
+                AverageRating = p.Reviews
+                    .Where(review => review.IsApproved)
+                    .Select(review => (double?)review.Rating)
+                    .Average() ?? 0,
+
+                ReviewsCount = p.Reviews
+                    .Count(review => review.IsApproved),
+
+                Reviews = p.Reviews
+                    .Where(review => review.IsApproved)
+                    .OrderByDescending(review => review.CreatedAt)
+                    .Select(review => new ProductReviewDto
+                    {
+                        Id = review.Id,
+                        UserId = review.UserId,
+                        UserFullName = review.User.FullName,
+                        Rating = review.Rating,
+                        Comment = review.Comment,
+                        CreatedAt = review.CreatedAt
+                    })
+                    .ToList()
+            })
+            .FirstOrDefaultAsync();
     }
 }

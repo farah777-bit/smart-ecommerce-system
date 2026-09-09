@@ -21,3 +21,26 @@ export interface Product {
 
     primaryImageUrl: string | null;
 }
+
+export interface ProductImage {
+    id: number;
+    productId: number;
+    imageUrl: string;
+    isPrimary: boolean;
+}
+
+export interface ProductReview {
+    id: number;
+    userId: number;
+    userFullName: string;
+    rating: number;
+    comment?: string | null;
+    createdAt: string;
+}
+
+export interface ProductDetails extends Product {
+    images: ProductImage[];
+    averageRating: number;
+    reviewsCount: number;
+    reviews: ProductReview[];
+}

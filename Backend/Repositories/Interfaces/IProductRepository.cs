@@ -27,4 +27,6 @@ public interface IProductRepository
     void Delete(Product product);
 
     Task SaveChangesAsync();
+
+    Task<ProductDetailsDto?> GetDetailsByIdAsync(int id);
 }

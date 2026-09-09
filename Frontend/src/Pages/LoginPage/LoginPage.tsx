@@ -7,8 +7,17 @@ import loginImage from "../../assets/images/loginImage.png";
 
 import { apiPost } from "../../Services/api";
 
+type AuthenticatedUser = {
+    id: number;
+    fullName: string;
+    email: string;
+    roles: string[];
+};
+
 type LoginResponse = {
     token: string;
+    expiration: string;
+    user: AuthenticatedUser;
 };
 
 function LoginPage() {
@@ -38,11 +47,22 @@ function LoginPage() {
                 }
             );
 
-            if (rememberMe) {
-                localStorage.setItem("token", response.token);
-            } else {
-                sessionStorage.setItem("token", response.token);
-            }
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+
+            sessionStorage.removeItem("token");
+            sessionStorage.removeItem("user");
+
+            const storage = rememberMe
+                ? localStorage
+                : sessionStorage;
+
+            storage.setItem("token", response.token);
+            storage.setItem(
+                "user",
+                JSON.stringify(response.user)
+            );
+
             window.dispatchEvent(new Event("authChanged"));
             navigate("/");
         } catch (error) {

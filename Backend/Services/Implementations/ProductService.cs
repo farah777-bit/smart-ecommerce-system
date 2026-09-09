@@ -205,4 +205,9 @@ public class ProductService : IProductService
             );
         }
     }
+
+    public async Task<ProductDetailsDto?> GetProductDetailsAsync(int id)
+    {
+        return await _productRepository.GetDetailsByIdAsync(id);
+    }
 }
