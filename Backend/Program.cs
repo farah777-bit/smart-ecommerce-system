@@ -7,6 +7,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
+using Backend.Repositories.Interfaces;
+using Backend.Repositories.Implementations;
+using Backend.Services.Interfaces;
+using Backend.Services.Implementations;
+
+using Backend.Repositories.Interfaces;
+using Backend.Repositories.Implementations;
+using Backend.Services.Interfaces;
+using Backend.Services.Implementations;
+
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,6 +43,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString);
 });
 
+
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
+builder.Services.AddScoped<IProductImageService, ProductImageService>();
+builder.Services.AddScoped<ICategoryRepository,CategoryRepository>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // =====================================================
 // Identity
@@ -116,37 +134,37 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(options =>
 {
-options.SwaggerDoc(
-    "v1",
-    new OpenApiInfo
-    {
-        Title = "Smart E-Commerce API",
-        Version = "v1"
-    }
-);
+    options.SwaggerDoc(
+        "v1",
+        new OpenApiInfo
+        {
+            Title = "Smart E-Commerce API",
+            Version = "v1"
+        }
+    );
 
-options.AddSecurityDefinition(
-    "Bearer",
-    new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
+    options.AddSecurityDefinition(
+        "Bearer",
+        new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
 
-        Type = SecuritySchemeType.Http,
+            Type = SecuritySchemeType.Http,
 
-        Scheme = "bearer",
+            Scheme = "bearer",
 
-        BearerFormat = "JWT",
+            BearerFormat = "JWT",
 
-        In = ParameterLocation.Header,
+            In = ParameterLocation.Header,
 
-        Description =
-            "Enter your JWT token"
-    }
-);
+            Description =
+                "Enter your JWT token"
+        }
+    );
 
-options.AddSecurityRequirement(
-    new OpenApiSecurityRequirement
-    {
+    options.AddSecurityRequirement(
+        new OpenApiSecurityRequirement
+        {
             {
                 new OpenApiSecurityScheme
                 {
@@ -160,8 +178,8 @@ options.AddSecurityRequirement(
                 },
                 Array.Empty<string>()
             }
-        }
-    );
+            }
+        );
 });
 
 
@@ -210,7 +228,9 @@ using (var scope = app.Services.CreateScope())
     var dbContext =
         services.GetRequiredService<ApplicationDbContext>();
 
-  
+    var connection = dbContext.Database.GetDbConnection();
+    Console.WriteLine($"server used: {connection.DataSource}");
+    Console.WriteLine($"server used: {connection.Database}");
     await dbContext.Database.MigrateAsync();
 
 

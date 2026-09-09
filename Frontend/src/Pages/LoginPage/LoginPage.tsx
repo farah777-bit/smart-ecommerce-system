@@ -43,7 +43,7 @@ function LoginPage() {
             } else {
                 sessionStorage.setItem("token", response.token);
             }
-
+            window.dispatchEvent(new Event("authChanged"));
             navigate("/");
         } catch (error) {
             console.error("Login error:", error);

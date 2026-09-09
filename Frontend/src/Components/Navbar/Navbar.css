@@ -154,3 +154,34 @@
     }
 
 }
+.account-link,
+.logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.account-link svg,
+.logout-btn svg {
+    font-size: 18px;
+}
+
+.logout-btn {
+    width: auto;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.logout-btn:hover {
+    color: #dc3545;
+    background: transparent;
+}
+
+.navbar a{
+    text-decoration: none;
+}

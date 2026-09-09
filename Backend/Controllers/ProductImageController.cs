@@ -1,9 +1,7 @@
-using Backend.Data;
 using Backend.DTOs.ProductImageDTOs;
-using Backend.Models;
+using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Controllers;
 
@@ -11,22 +9,22 @@ namespace Backend.Controllers;
 [Route("api/[controller]")]
 public class ProductImagesController : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IProductImageService _service;
 
-    public ProductImagesController(ApplicationDbContext context)
+    public ProductImagesController(IProductImageService service)
     {
-        _context = context;
+        _service = service;
     }
 
     // GET: api/productimages/product/5
     [HttpGet("product/{productId:int}")]
-    public async Task<ActionResult<IEnumerable<ProductImageDto>>> GetProductImages(
-        int productId)
+    public async Task<ActionResult<IEnumerable<ProductImageDto>>>
+        GetProductImages(int productId)
     {
-        var productExists = await _context.Products
-            .AnyAsync(p => p.Id == productId);
+        var images =
+            await _service.GetProductImagesAsync(productId);
 
-        if (!productExists)
+        if (images == null)
         {
             return NotFound(new
             {
@@ -34,27 +32,14 @@ public class ProductImagesController : ControllerBase
             });
         }
 
-        var images = await _context.ProductImages
-            .Where(i => i.ProductId == productId)
-            .OrderByDescending(i => i.IsPrimary)
-            .Select(i => new ProductImageDto
-            {
-                Id = i.Id,
-                ProductId = i.ProductId,
-                ImageUrl = i.ImageUrl,
-                IsPrimary = i.IsPrimary
-            })
-            .ToListAsync();
-
         return Ok(images);
     }
 
     // POST: api/productimages
-    // Admin only
     [Authorize(Roles = "Admin")]
     [HttpPost]
-    public async Task<ActionResult<ProductImageDto>> CreateProductImage(
-        CreateProductImageDto createDto)
+    public async Task<ActionResult<ProductImageDto>>
+        CreateProductImage(CreateProductImageDto createDto)
     {
         if (string.IsNullOrWhiteSpace(createDto.ImageUrl))
         {
@@ -64,10 +49,10 @@ public class ProductImagesController : ControllerBase
             });
         }
 
-        var productExists = await _context.Products
-            .AnyAsync(p => p.Id == createDto.ProductId);
+        var image =
+            await _service.CreateProductImageAsync(createDto);
 
-        if (!productExists)
+        if (image == null)
         {
             return BadRequest(new
             {
@@ -75,54 +60,18 @@ public class ProductImagesController : ControllerBase
             });
         }
 
-        // إذا كانت الصورة الجديدة Primary
-        // نزيل Primary عن أي صورة أخرى لنفس المنتج
-        if (createDto.IsPrimary)
-        {
-            var currentPrimaryImages = await _context.ProductImages
-                .Where(i =>
-                    i.ProductId == createDto.ProductId &&
-                    i.IsPrimary)
-                .ToListAsync();
-
-            foreach (var image in currentPrimaryImages)
-            {
-                image.IsPrimary = false;
-            }
-        }
-
-        var productImage = new ProductImage
-        {
-            ProductId = createDto.ProductId,
-            ImageUrl = createDto.ImageUrl.Trim(),
-            IsPrimary = createDto.IsPrimary
-        };
-
-        _context.ProductImages.Add(productImage);
-
-        await _context.SaveChangesAsync();
-
-        var imageDto = new ProductImageDto
-        {
-            Id = productImage.Id,
-            ProductId = productImage.ProductId,
-            ImageUrl = productImage.ImageUrl,
-            IsPrimary = productImage.IsPrimary
-        };
-
-        return Ok(imageDto);
+        return Ok(image);
     }
 
     // PUT: api/productimages/5/set-primary
-    // Admin only
     [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}/set-primary")]
     public async Task<IActionResult> SetPrimaryImage(int id)
     {
-        var image = await _context.ProductImages
-            .FirstOrDefaultAsync(i => i.Id == id);
+        var success =
+            await _service.SetPrimaryImageAsync(id);
 
-        if (image == null)
+        if (!success)
         {
             return NotFound(new
             {
@@ -130,40 +79,24 @@ public class ProductImagesController : ControllerBase
             });
         }
 
-        var productImages = await _context.ProductImages
-            .Where(i => i.ProductId == image.ProductId)
-            .ToListAsync();
-
-        foreach (var productImage in productImages)
-        {
-            productImage.IsPrimary =
-                productImage.Id == image.Id;
-        }
-
-        await _context.SaveChangesAsync();
-
         return NoContent();
     }
+
     // DELETE: api/productimages/5
-    // Admin only
     [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteProductImage(int id)
     {
-        var image = await _context.ProductImages
-            .FirstOrDefaultAsync(i => i.Id == id);
+        var success =
+            await _service.DeleteProductImageAsync(id);
 
-        if (image == null)
+        if (!success)
         {
             return NotFound(new
             {
                 message = "Image not found."
             });
         }
-
-        _context.ProductImages.Remove(image);
-
-        await _context.SaveChangesAsync();
 
         return NoContent();
     }

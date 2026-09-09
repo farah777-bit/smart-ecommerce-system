@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+
 import "./ProductsPage.css";
 
 import Navbar from "../../Components/Navbar/Navbar";
@@ -26,21 +28,49 @@ type PaginatedProductsResponse = {
 };
 
 function ProductsPage() {
-    const [products, setProducts] = useState<Product[]>([]);
-    const [categories, setCategories] = useState<Category[]>([]);
+    const [searchParams, setSearchParams] =
+        useSearchParams();
+
+    const categoryIdFromUrl =
+        searchParams.get("categoryId") ?? "";
+
+    const [products, setProducts] =
+        useState<Product[]>([]);
+
+    const [categories, setCategories] =
+        useState<Category[]>([]);
 
     const [search, setSearch] = useState("");
-    const [categoryId, setCategoryId] = useState("");
+
+    const [categoryId, setCategoryId] =
+        useState(categoryIdFromUrl);
+
     const [sortBy, setSortBy] = useState("");
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [totalCount, setTotalCount] = useState(0);
+    const [currentPage, setCurrentPage] =
+        useState(1);
 
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+    const [totalPages, setTotalPages] =
+        useState(1);
+
+    const [totalCount, setTotalCount] =
+        useState(0);
+
+    const [loading, setLoading] =
+        useState(true);
+
+    const [error, setError] =
+        useState("");
 
     const pageSize = 8;
+
+    // ==========================================
+    // Read categoryId from URL
+    // ==========================================
+
+    useEffect(() => {
+        setCategoryId(categoryIdFromUrl);
+    }, [categoryIdFromUrl]);
 
     // ==========================================
     // Load Categories
@@ -86,57 +116,46 @@ function ProductsPage() {
                     new URLSearchParams();
 
                 if (search.trim()) {
-                    params.append(
+                    params.set(
                         "search",
                         search.trim()
                     );
                 }
 
                 if (categoryId) {
-                    params.append(
+                    params.set(
                         "categoryId",
                         categoryId
                     );
                 }
 
                 if (sortBy) {
-                    params.append(
+                    params.set(
                         "sortBy",
                         sortBy
                     );
                 }
 
-                params.append(
+                params.set(
                     "page",
                     currentPage.toString()
                 );
 
-                params.append(
+                params.set(
                     "pageSize",
                     pageSize.toString()
                 );
 
-                let endpoint = "/products";
-
-                if (params.toString()) {
-                    endpoint +=
-                        `?${params.toString()}`;
-                }
+                const endpoint =
+                    `/products?${params.toString()}`;
 
                 const data =
                     await apiGet<PaginatedProductsResponse>(
                         endpoint
                     );
-
                 setProducts(data.items);
-
-                setTotalPages(
-                    data.totalPages
-                );
-
-                setTotalCount(
-                    data.totalCount
-                );
+                setTotalPages(data.totalPages);
+                setTotalCount(data.totalCount);
             } catch (error) {
                 console.error(
                     "Error loading products:",
@@ -146,6 +165,10 @@ function ProductsPage() {
                 setError(
                     "Could not load products."
                 );
+
+                setProducts([]);
+                setTotalCount(0);
+                setTotalPages(1);
             } finally {
                 setLoading(false);
             }
@@ -156,77 +179,79 @@ function ProductsPage() {
         search,
         categoryId,
         sortBy,
-        currentPage
+        currentPage,
     ]);
+
+    // ==========================================
+    // Change Category
+    // ==========================================
+
+    const handleCategoryChange = (
+        value: string
+    ) => {
+        setCategoryId(value);
+        setCurrentPage(1);
+
+        const updatedParams =
+            new URLSearchParams(searchParams);
+
+        if (value) {
+            updatedParams.set(
+                "categoryId",
+                value
+            );
+        } else {
+            updatedParams.delete("categoryId");
+        }
+
+        setSearchParams(updatedParams);
+    };
 
     return (
         <>
             <Navbar />
 
             <section className="products-page">
-
                 <h1>All Products</h1>
 
-                {/* ========================= */}
-                {/* Filters */}
-                {/* ========================= */}
-
                 <div className="filters">
-
                     <input
                         type="text"
                         placeholder="Search products..."
                         value={search}
-                        onChange={(e) =>
-                            setSearch(
-                                e.target.value
-                            )
+                        onChange={(event) =>
+                            setSearch(event.target.value)
                         }
                     />
 
                     <select
                         value={categoryId}
-                        onChange={(e) =>
-                            setCategoryId(
-                                e.target.value
+                        onChange={(event) =>
+                            handleCategoryChange(
+                                event.target.value
                             )
                         }
                     >
-
                         <option value="">
                             All Categories
                         </option>
 
-                        {categories.map(
-                            (category) => (
-
-                                <option
-                                    key={
-                                        category.id
-                                    }
-                                    value={
-                                        category.id
-                                    }
-                                >
-                                    {
-                                        category.name
-                                    }
-                                </option>
-
-                            )
-                        )}
-
+                        {categories.map((category) => (
+                            <option
+                                key={category.id}
+                                value={category.id}
+                            >
+                                {category.name}
+                            </option>
+                        ))}
                     </select>
 
                     <select
                         value={sortBy}
-                        onChange={(e) =>
-                            setSortBy(
-                                e.target.value
-                            )
+                        onChange={(event) =>
+                            setSortBy(event.target.value)
                         }
                     >
-
                         <option value="">
                             Sort By
                         </option>
@@ -242,134 +267,105 @@ function ProductsPage() {
                         <option value="name">
                             Name
                         </option>
-
                     </select>
-
                 </div>
-
-                {/* ========================= */}
-                {/* Total Count */}
-                {/* ========================= */}
 
                 {!loading &&
                     !error &&
                     totalCount > 0 && (
-
                         <p className="products-count">
                             {totalCount} products found
                         </p>
-
                     )}
 
-                {/* ========================= */}
-                {/* Loading */}
-                {/* ========================= */}
-
                 {loading && (
-
                     <p className="products-message">
                         Loading products...
                     </p>
-
                 )}
 
-                {/* ========================= */}
-                {/* Error */}
-                {/* ========================= */}
-
-                {!loading &&
-                    error && (
-
-                        <p className="products-message">
-                            {error}
-                        </p>
-
-                    )}
-
-                {/* ========================= */}
-                {/* No Products */}
-                {/* ========================= */}
-
+                {!loading && error && (
+                    <p className="products-message">
+                        {error}
+                    </p>
+                )}
                 {!loading &&
                     !error &&
                     products.length === 0 && (
                         <p className="products-message">
                             No products found.
                         </p>
-
                     )}
-
-                {/* ========================= */}
-                {/* Products */}
-                {/* ========================= */}
 
                 {!loading &&
                     !error &&
                     products.length > 0 && (
-
                         <>
                             <div className="products-grid">
-
-                                {products.map(
-                                    (product) => (
-
-                                        <ProductCard
-                                            key={
-                                                product.id
-                                            }
-                                            product={
-                                                product
-                                            }
-                                        />
-
-                                    )
-                                )}
-
+                                {products.map((product) => (
+                                    <ProductCard
+                                        key={product.id}
+                                        product={product}
+                                    />
+                                ))}
                             </div>
 
-                            {/* ========================= */}
-                            {/* Pagination */}
-                            {/* ========================= */}
-
                             {totalPages > 1 && (
-
                                 <div className="pagination">
-
                                     <button
-                                        onClick={() => setCurrentPage((prev) => prev - 1)}
-                                        disabled={currentPage === 1}
+                                        onClick={() =>
+                                            setCurrentPage(
+                                                (previous) =>
+                                                    previous - 1
+                                            )
+                                        }
+                                        disabled={
+                                            currentPage === 1
+                                        }
                                     >
                                         Previous
                                     </button>
 
                                     {Array.from(
-                                        { length: totalPages, }, (_, index) => index + 1).map((page) => (
-
-                                            <button
-                                                key={page}
-                                                className={currentPage === page ? "active" : ""}
-                                                onClick={() => setCurrentPage(page)}
-                                            >
-                                                {page}
-                                            </button>
-                                        )
-                                        )}
+                                        {
+                                            length: totalPages,
+                                        },
+                                        (_, index) =>
+                                            index + 1
+                                    ).map((page) => (
+                                        <button
+                                            key={page}
+                                            className={
+                                                currentPage === page
+                                                    ? "active"
+                                                    : ""
+                                            }
+                                            onClick={() =>
+                                                setCurrentPage(page)
+                                            }
+                                        >
+                                            {page}
+                                        </button>
+                                    ))}
 
                                     <button
-                                        onClick={() => setCurrentPage((prev) => prev + 1)}
-                                        disabled={currentPage === totalPages}
+                                        onClick={() =>
+                                            setCurrentPage(
+                                                (previous) =>
+                                                    previous + 1
+                                            )
+                                        }
+                                        disabled={
+                                            currentPage ===
+                                            totalPages
+                                        }
                                     >
                                         Next
                                     </button>
-
                                 </div>
-
                             )}
-
                         </>
-
                     )}
-
             </section>
 
             <Footer />
