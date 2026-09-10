@@ -20,6 +20,9 @@ export interface Product {
     updatedAt: string;
 
     primaryImageUrl: string | null;
+
+    averageRating: number;
+    reviewsCount: number;
 }
 
 export interface ProductImage {

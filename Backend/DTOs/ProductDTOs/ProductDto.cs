@@ -29,4 +29,7 @@ public class ProductDto
     public DateTime UpdatedAt { get; set; }
 
     public string? PrimaryImageUrl { get; set; }
+
+    public double AverageRating { get; set; }
+public int ReviewsCount { get; set; }
 }

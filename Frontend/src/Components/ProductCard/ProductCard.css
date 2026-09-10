@@ -160,4 +160,35 @@
 
     }
 
+
+    .cart-message {
+    margin: 10px 0 0;
+    color: #198754;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.cart-message.cart-error {
+    color: #dc3545;
+}
+
+.cart-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+}
+.cart-message {
+    margin: 10px 0 0;
+    color: #198754;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.cart-message.cart-error {
+    color: #dc3545;
+}
+
+.cart-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
 }

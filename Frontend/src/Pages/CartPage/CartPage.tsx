@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
     FaMinus,
     FaPlus,
@@ -9,70 +10,145 @@ import {
 import Navbar from "../../Components/Navbar/Navbar";
 import Footer from "../../Components/Footer/Footer";
 
+import {
+    apiDelete,
+    apiGet,
+    apiPut,
+} from "../../Services/api";
+
+import type {
+    Cart,
+    CartItem,
+    UpdateCartItemQuantityRequest,
+} from "../../Types/Cart";
+
 import "./CartPage.css";
 
-import product1 from "../../assets/images/products/headphone.jfif";
-import product2 from "../../assets/images/products/headphone.jfif";
-
-type CartItem = {
-    id: number;
-    name: string;
-    image: string;
-    price: number;
-    quantity: number;
+const emptyCart: Cart = {
+    id: null,
+    items: [],
+    totalItems: 0,
+    subtotal: 0,
 };
 
 function CartPage() {
-    const [cartItems, setCartItems] = useState<CartItem[]>([
-        {
-            id: 1,
-            name: "Wireless Headphones",
-            image: product1,
-            price: 89,
-            quantity: 1,
-        },
-        {
-            id: 2,
-            name: "Smart Watch",
-            image: product2,
-            price: 120,
-            quantity: 2,
-        },
-    ]);
+    const navigate = useNavigate();
 
-    const increaseQuantity = (id: number) => {
-        setCartItems((previousItems) =>
-            previousItems.map((item) =>
-                item.id === id
-                    ? { ...item, quantity: item.quantity + 1 }
-                    : item
-            )
+    const [cart, setCart] = useState<Cart>(emptyCart);
+    const [isLoading, setIsLoading] = useState(true);
+    const [updatingItemId, setUpdatingItemId] =
+        useState<number | null>(null);
+    const [error, setError] = useState("");
+
+    const loadCart = useCallback(async () => {
+        const token =
+            localStorage.getItem("token") ||
+            sessionStorage.getItem("token");
+
+        if (!token) {
+            navigate("/login");
+            return;
+        }
+
+        try {
+            setError("");
+
+            const result = await apiGet<Cart>(
+                "/Cart",
+                true
+            );
+
+            setCart(result);
+        } catch (error) {
+            setError(
+                error instanceof Error
+                    ? error.message
+                    : "Could not load the cart."
+            );
+        } finally {
+            setIsLoading(false);
+        }
+    }, [navigate]);
+
+    useEffect(() => {
+        loadCart();
+    }, [loadCart]);
+
+    const updateQuantity = async (
+        item: CartItem,
+        newQuantity: number
+    ) => {
+        if (newQuantity < 1) return;
+
+        if (newQuantity > item.stockQuantity) {
+            setError("The requested quantity exceeds available stock.");
+            return;
+        }
+
+        const request: UpdateCartItemQuantityRequest = {
+            quantity: newQuantity,
+        };
+
+        try {
+            setUpdatingItemId(item.id);
+            setError("");
+
+            await apiPut<void>(
+                `/Cart/items/${item.id}`,
+                request,
+                true
+            );
+
+            await loadCart();
+        } catch (error) {
+            setError(
+                error instanceof Error
+                    ? error.message
+                    : "Could not update the quantity."
+            );
+        } finally {
+            setUpdatingItemId(null);
+        }
+    };
+
+    const increaseQuantity = async (item: CartItem) => {
+        await updateQuantity(
+            item,
+            item.quantity + 1
         );
     };
 
-    const decreaseQuantity = (id: number) => {
-        setCartItems((previousItems) =>
-            previousItems.map((item) =>
-                item.id === id && item.quantity > 1
-                    ? { ...item, quantity: item.quantity - 1 }
-                    : item
-            )
+    const decreaseQuantity = async (item: CartItem) => {
+        await updateQuantity(
+            item,
+            item.quantity - 1
         );
     };
 
-    const removeItem = (id: number) => {
-        setCartItems((previousItems) =>
-            previousItems.filter((item) => item.id !== id)
-        );
+    const removeItem = async (itemId: number) => {
+        try {
+            setUpdatingItemId(itemId);
+            setError("");
+
+            await apiDelete<void>(
+                `/Cart/items/${itemId}`,
+                true
+            );
+
+            await loadCart();
+        } catch (error) {
+            setError(
+                error instanceof Error
+                    ? error.message
+                    : "Could not remove the product."
+            );
+        } finally {
+            setUpdatingItemId(null);
+        }
     };
 
-    const subtotal = cartItems.reduce(
-        (total, item) => total + item.price * item.quantity,
-        0
-    );
-
-    const shipping = subtotal > 0 ? 10 : 0;
-    const total = subtotal + shipping;
+    const shipping = cart.subtotal > 0 ? 10 : 0;
+    const total = cart.subtotal + shipping;
 
     return (
         <>
@@ -81,39 +157,66 @@ function CartPage() {
             <main className="cart-page">
                 <div className="cart-heading">
                     <FaShoppingCart />
+
                     <div>
                         <h1>Shopping Cart</h1>
-                        <p>Review and update your selected products.</p>
+                        <p>
+                            Review and update your selected products.
+                        </p>
                     </div>
                 </div>
+                {error && (
+                    <p className="cart-error-message">
+                        {error}
+                    </p>
+                )}
 
-                {cartItems.length === 0 ? (
+                {isLoading ? (
+                    <p className="cart-loading">
+                        Loading your cart...
+                    </p>
+                ) : cart.items.length === 0 ? (
                     <section className="empty-cart">
                         <FaShoppingCart />
                         <h2>Your cart is empty</h2>
-                        <p>Add products to your cart before checkout.</p>
+                        <p>
+                            Add products to your cart before checkout.
+                        </p>
                     </section>
                 ) : (
                     <div className="cart-layout">
                         <section className="cart-items">
-                            {cartItems.map((item) => (
-                                <article className="cart-item" key={item.id}>
+                            {cart.items.map((item) => (
+                                <article
+                                    className="cart-item"
+                                    key={item.id}
+                                >
                                     <img
-                                        src={item.image}
-                                        alt={item.name}
+                                        src={
+                                            item.primaryImageUrl ||
+                                            "/placeholder-product.jpg"
+                                        }
+                                        alt={item.productName}
                                         className="cart-item-image"
                                     />
 
                                     <div className="cart-item-info">
-                                        <h2>{item.name}</h2>
+                                        <h2>{item.productName}</h2>
+
                                         <p className="cart-item-price">
-                                            ${item.price.toFixed(2)}
+                                            ${item.unitPrice.toFixed(2)}
                                         </p>
 
                                         <div className="quantity-control">
                                             <button
                                                 type="button"
-                                                onClick={() => decreaseQuantity(item.id)}
+                                                onClick={() =>
+                                                    decreaseQuantity(item)
+                                                }
+                                                disabled={
+                                                    item.quantity <= 1 ||
+                                                    updatingItemId === item.id
+                                                }
                                                 aria-label="Decrease quantity"
                                             >
                                                 <FaMinus />
@@ -123,7 +226,14 @@ function CartPage() {
 
                                             <button
                                                 type="button"
-                                                onClick={() => increaseQuantity(item.id)}
+                                                onClick={() =>
+                                                    increaseQuantity(item)
+                                                }
+                                                disabled={
+                                                    item.quantity >=
+                                                    item.stockQuantity ||
+                                                    updatingItemId === item.id
+                                                }
                                                 aria-label="Increase quantity"
                                             >
                                                 <FaPlus />
@@ -133,13 +243,17 @@ function CartPage() {
 
                                     <div className="cart-item-actions">
                                         <p className="item-total">
-                                            ${(item.price * item.quantity).toFixed(2)}
+                                            ${item.totalPrice.toFixed(2)}
                                         </p>
-
                                         <button
                                             type="button"
                                             className="remove-button"
-                                            onClick={() => removeItem(item.id)}
+                                            onClick={() =>
+                                                removeItem(item.id)
+                                            }
+                                            disabled={
+                                                updatingItemId === item.id
+                                            }
                                         >
                                             <FaTrash />
                                             Remove
@@ -151,24 +265,34 @@ function CartPage() {
 
                         <aside className="order-summary">
                             <h2>Order Summary</h2>
+
                             <div className="summary-row">
                                 <span>Subtotal</span>
-                                <strong>${subtotal.toFixed(2)}</strong>
+                                <strong>
+                                    ${cart.subtotal.toFixed(2)}
+                                </strong>
                             </div>
 
                             <div className="summary-row">
                                 <span>Shipping</span>
-                                <strong>${shipping.toFixed(2)}</strong>
+                                <strong>
+                                    ${shipping.toFixed(2)}
+                                </strong>
                             </div>
 
                             <div className="summary-divider" />
 
                             <div className="summary-row total-row">
                                 <span>Total</span>
-                                <strong>${total.toFixed(2)}</strong>
+                                <strong>
+                                    ${total.toFixed(2)}
+                                </strong>
                             </div>
 
-                            <button type="button" className="checkout-button">
+                            <button
+                                type="button"
+                                className="checkout-button"
+                            >
                                 Proceed to Checkout
                             </button>
                         </aside>

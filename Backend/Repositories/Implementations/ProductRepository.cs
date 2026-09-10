@@ -86,7 +86,13 @@ public class ProductRepository : IProductRepository
                 PrimaryImageUrl = p.Images
                     .Where(i => i.IsPrimary)
                     .Select(i => i.ImageUrl)
-                    .FirstOrDefault()
+                    .FirstOrDefault(),
+                AverageRating = _context.Reviews
+    .Where(r => r.ProductId == p.Id)
+    .Select(r => (double?)r.Rating)
+    .Average() ?? 0,
+                ReviewsCount = _context.Reviews
+            .Count(r => r.ProductId == p.Id)
             })
             .ToListAsync();
 
@@ -117,7 +123,17 @@ public class ProductRepository : IProductRepository
                 PrimaryImageUrl = p.Images
                     .Where(i => i.IsPrimary)
                     .Select(i => i.ImageUrl)
-                    .FirstOrDefault()
+                    .FirstOrDefault(),
+
+                AverageRating = _context.Reviews
+    .Where(r => r.ProductId == p.Id)
+    .Select(r => (double?)r.Rating)
+    .Average() ?? 0,
+
+                ReviewsCount = _context.Reviews
+    .Count(r => r.ProductId == p.Id)
+
+
             })
             .FirstOrDefaultAsync();
     }
