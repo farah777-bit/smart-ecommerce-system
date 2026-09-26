@@ -22,4 +22,6 @@ public interface ICartRepository
     void DeleteItem(CartItem cartItem);
 
     Task SaveChangesAsync();
+
+    Task<Cart?> GetCartWithItemsAsync(int userId);
 }

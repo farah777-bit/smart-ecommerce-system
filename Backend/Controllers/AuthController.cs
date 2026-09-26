@@ -103,4 +103,46 @@ public class AuthController : ControllerBase
             message = "Welcome Admin."
         });
     }
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword(
+    ForgotPasswordDto forgotDto)
+    {
+        var result =
+            await _authService.ForgotPasswordAsync(forgotDto.Email);
+
+        return Ok(new
+        {
+            message = result.Message,
+            token = result.Token
+        });
+    }
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword(
+       ResetPasswordDto resetDto)
+    {
+        var result =
+            await _authService.ResetPasswordAsync(resetDto);
+
+        if (!result.Success)
+        {
+            if (result.Errors != null)
+            {
+                return BadRequest(new
+                {
+                    message = result.Message,
+                    errors = result.Errors
+                });
+            }
+
+            return BadRequest(new
+            {
+                message = result.Message
+            });
+        }
+
+        return Ok(new
+        {
+            message = result.Message
+        });
+    }
 }

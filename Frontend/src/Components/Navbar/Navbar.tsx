@@ -4,6 +4,8 @@ import {
     FaBars,
     FaUserCircle,
     FaSignOutAlt,
+    FaBox,
+    FaHeart,
 } from "react-icons/fa";
 
 import "./Navbar.css";
@@ -13,6 +15,7 @@ function Navbar() {
     const navigate = useNavigate();
 
     const [menuOpen, setMenuOpen] = useState(false);
+    const [accountOpen, setAccountOpen] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     const checkLoginStatus = () => {
@@ -26,31 +29,18 @@ function Navbar() {
     useEffect(() => {
         checkLoginStatus();
 
-        window.addEventListener(
-            "authChanged",
-            checkLoginStatus
-        );
-
-        window.addEventListener(
-            "storage",
-            checkLoginStatus
-        );
+        window.addEventListener("authChanged", checkLoginStatus);
+        window.addEventListener("storage", checkLoginStatus);
 
         return () => {
-            window.removeEventListener(
-                "authChanged",
-                checkLoginStatus
-            );
-
-            window.removeEventListener(
-                "storage",
-                checkLoginStatus
-            );
+            window.removeEventListener("authChanged", checkLoginStatus);
+            window.removeEventListener("storage", checkLoginStatus);
         };
     }, []);
 
     const closeMenu = () => {
         setMenuOpen(false);
+        setAccountOpen(false);
     };
 
     const handleLogout = () => {
@@ -62,30 +52,20 @@ function Navbar() {
 
         setIsLoggedIn(false);
         setMenuOpen(false);
+        setAccountOpen(false);
 
         window.dispatchEvent(new Event("authChanged"));
-
         navigate("/");
     };
 
     return (
         <nav className="navbar">
-            <Link
-                to="/"
-                className="logo-section"
-                onClick={closeMenu}
-            >
+            <Link to="/" className="logo-section" onClick={closeMenu}>
                 <img src={logo} alt="Logo" />
                 <h2>SmartCommerce CMS</h2>
             </Link>
 
-            <div
-                className={
-                    menuOpen
-                        ? "nav-links active"
-                        : "nav-links"
-                }
-            >
+            <div className={menuOpen ? "nav-links active" : "nav-links"}>
                 <Link to="/" onClick={closeMenu}>
                     Home
                 </Link>
@@ -107,30 +87,48 @@ function Navbar() {
                 </Link>
 
                 {isLoggedIn ? (
-                    <>
-                        <Link
-                            to="/profile"
-                            className="account-link"
-                            onClick={closeMenu}
+                    <div className="account-menu">
+                        <button
+                            type="button"
+                            className="account-btn"
+                            onClick={() =>
+                                setAccountOpen((current) => !current)
+                            }
                         >
                             <FaUserCircle />
                             <span>My Account</span>
-                        </Link>
-
-                        <button
-                            type="button"
-                            className="logout-btn"
-                            onClick={handleLogout}
-                        >
-                            <FaSignOutAlt />
-                            <span>Logout</span>
                         </button>
-                    </>
+
+                        {accountOpen && (
+                            <div className="account-dropdown">
+                                <Link to="/profile" onClick={closeMenu}>
+                                    <FaUserCircle />
+                                    My Profile
+                                </Link>
+
+                                <Link to="/orders" onClick={closeMenu}>
+                                    <FaBox />
+                                    My Orders
+                                </Link>
+
+                                <Link to="/wishlist" onClick={closeMenu}>
+                                    <FaHeart />
+                                    Wishlist
+                                </Link>
+
+                                <button
+                                    type="button"
+                                    onClick={handleLogout}
+                                    className="dropdown-logout"
+                                >
+                                    <FaSignOutAlt />
+                                    Logout
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 ) : (
-                    <Link
-                        to="/login"
-                        onClick={closeMenu}
-                    >
+                    <Link to="/login" onClick={closeMenu}>
                         Login
                     </Link>
                 )}

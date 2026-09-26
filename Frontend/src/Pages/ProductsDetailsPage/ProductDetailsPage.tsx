@@ -73,7 +73,9 @@ function ProductDetailsPage() {
     const [quantity, setQuantity] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
-
+    const [isAddingToCart, setIsAddingToCart] = useState(false);
+    const [cartMessage, setCartMessage] = useState("");
+    const [cartError, setCartError] = useState("");
 
     const [reviewRating, setReviewRating] = useState(0);
     const [reviewComment, setReviewComment] = useState("");
@@ -172,6 +174,41 @@ function ProductDetailsPage() {
         );
     };
 
+    const handleAddToCart = async () => {
+        if (!currentUser) {
+            navigate("/login");
+            return;
+        }
+
+        if (!product) {
+            return;
+        }
+
+        try {
+            setIsAddingToCart(true);
+            setCartError("");
+            setCartMessage("");
+
+            await apiPost(
+                "/cart/items",
+                {
+                    productId: product.id,
+                    quantity: quantity,
+                },
+                true
+            );
+
+            setCartMessage("Product added to cart successfully.");
+        } catch (error) {
+            setCartError(
+                error instanceof Error
+                    ? error.message
+                    : "Could not add product to cart."
+            );
+        } finally {
+            setIsAddingToCart(false);
+        }
+    };
 
     const resetReviewForm = () => {
         setReviewRating(0);
@@ -502,14 +539,29 @@ function ProductDetailsPage() {
                         <button
                             type="button"
                             className="add-to-cart-button"
-                            disabled={isOutOfStock}
+                            onClick={handleAddToCart}
+                            disabled={isOutOfStock || isAddingToCart}
                         >
                             <FaShoppingCart />
 
                             {isOutOfStock
                                 ? "Out of Stock"
-                                : "Add to Cart"}
+                                : isAddingToCart
+                                    ? "Adding..."
+                                    : "Add to Cart"}
                         </button>
+
+                        {cartMessage && (
+                            <p className="cart-feedback cart-feedback-success">
+                                {cartMessage}
+                            </p>
+                        )}
+
+                        {cartError && (
+                            <p className="cart-feedback cart-feedback-error">
+                                {cartError}
+                            </p>
+                        )}
 
                         <div className="product-benefits">
                             <div>

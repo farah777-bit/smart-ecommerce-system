@@ -12,12 +12,11 @@ using Backend.Repositories.Implementations;
 using Backend.Services.Interfaces;
 using Backend.Services.Implementations;
 
-using Backend.Repositories.Interfaces;
-using Backend.Repositories.Implementations;
-using Backend.Services.Interfaces;
-using Backend.Services.Implementations;
+
 
 using System.Text;
+using Backend.Repositories;
+using Backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +56,11 @@ builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IWishlistRepository, WishlistRepository>();
+builder.Services.AddScoped<IWishlistService, WishlistService>();
+
 
 // =====================================================
 // Identity
@@ -110,24 +114,43 @@ builder.Services
             JwtBearerDefaults.AuthenticationScheme;
     })
     .AddJwtBearer(options =>
+{
+    options.TokenValidationParameters =
+        new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+
+            IssuerSigningKey =
+                new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(jwtKey)
+                )
+        };
+
+    options.Events = new JwtBearerEvents
     {
-        options.TokenValidationParameters =
-            new TokenValidationParameters
+        OnChallenge = async context =>
+        {
+            context.HandleResponse();
+
+            context.Response.StatusCode =
+                StatusCodes.Status401Unauthorized;
+
+            context.Response.ContentType =
+                "application/json";
+
+            await context.Response.WriteAsJsonAsync(new
             {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-
-                ValidIssuer = jwtIssuer,
-                ValidAudience = jwtAudience,
-
-                IssuerSigningKey =
-                    new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(jwtKey)
-                    )
-            };
-    });
+                message = "Please sign in to continue."
+            });
+        }
+    };
+});
 
 builder.Services.AddAuthorization();
 

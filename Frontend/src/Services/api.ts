@@ -41,14 +41,18 @@ async function request<T>(
     }
 
     if (!response.ok) {
-        const message =
-            data?.message ||
-            data?.title ||
-            "Something went wrong.";
+        let message = "Something went wrong.";
+
+        if (Array.isArray(data?.errors) && data.errors.length > 0) {
+            message = data.errors.join(" ");
+        } else if (data?.message) {
+            message = data.message;
+        } else if (data?.title) {
+            message = data.title;
+        }
 
         throw new Error(message);
     }
-
     return data as T;
 }
 

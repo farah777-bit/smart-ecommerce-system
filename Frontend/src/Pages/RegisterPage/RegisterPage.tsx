@@ -152,10 +152,22 @@ function RegisterPage() {
                     </div>
 
                     {error && (
-                        <p className="error-message">
-                            {error}
-                        </p>
-                    )}<button type="submit" disabled={loading} className="submit">
+                        <div className="register-error">
+                            <strong>Please check your password:</strong>
+
+                            <ul>
+                                {error
+                                    .split(".")
+                                    .filter((message) => message.trim() !== "")
+                                    .map((message, index) => (
+                                        <li key={index}>
+                                            {message.trim()}.
+                                        </li>
+                                    ))}
+                            </ul>
+                        </div>
+                    )}
+                    <button type="submit" disabled={loading} className="submit">
                         {loading
                             ? "Creating Account..."
                             : "Create Account"}

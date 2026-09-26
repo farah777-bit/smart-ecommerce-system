@@ -147,3 +147,33 @@
     color: #333;
     background: transparent;
 }
+
+.register-error {
+    margin: 15px 0;
+    padding: 14px 16px;
+
+    background: #fff4f4;
+    border: 1px solid #f2c2c2;
+    border-left: 4px solid #d93025;
+    border-radius: 7px;
+
+    color: #a61b1b;
+    font-size: 14px;
+    text-align: left;
+}
+
+.register-error strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.register-error ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.register-error li {
+    margin: 5px 0;
+    line-height: 1.4;
+}

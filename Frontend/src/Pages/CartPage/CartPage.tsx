@@ -289,12 +289,13 @@ function CartPage() {
                                 </strong>
                             </div>
 
-                            <button
-                                type="button"
-                                className="checkout-button"
-                            >
-                                Proceed to Checkout
-                            </button>
+                                    <button
+                                        type="button"
+                                        className="checkout-button"
+                                        onClick={() => navigate("/checkout")}
+                                    >
+                                        Proceed to Checkout
+                                    </button>
                         </aside>
                     </div>
                 )}

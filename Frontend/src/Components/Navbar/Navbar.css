@@ -47,6 +47,7 @@
 .nav-links {
 
     display: flex;
+    align-items: center;
     gap: 30px;
 
 }
@@ -154,6 +155,7 @@
     }
 
 }
+
 .account-link,
 .logout-btn {
     display: flex;
@@ -182,6 +184,184 @@
     background: transparent;
 }
 
-.navbar a{
+.navbar a {
     text-decoration: none;
+}
+
+/* =========================
+   Account Menu
+========================= */
+
+.account-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.account-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 10px;
+
+    border: none;
+    background: transparent;
+    color: inherit;
+
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.account-btn svg {
+    font-size: 20px;
+}
+
+.account-btn:hover {
+    opacity: 0.8;
+}
+
+/* =========================
+   Dropdown
+========================= */
+
+.account-dropdown {
+    position: absolute;
+    top: calc(100% + 14px);
+    right: 0;
+    z-index: 1000;
+
+    width: 200px;
+    padding: 8px;
+
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 10px;
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* Small arrow above dropdown */
+
+.account-dropdown::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    right: 22px;
+
+    width: 12px;
+    height: 12px;
+
+    background: #fff;
+    border-top: 1px solid #e8e8e8;
+    border-left: 1px solid #e8e8e8;
+
+    transform: rotate(45deg);
+}
+
+/* Dropdown links */
+
+.account-dropdown a,
+.account-dropdown button {
+    position: relative;
+    z-index: 1;
+
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    box-sizing: border-box;
+    padding: 11px 12px;
+
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+
+    color: #333;
+    text-decoration: none;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.account-dropdown a:hover,
+.account-dropdown button:hover {
+    background: #f4f6f8;
+}
+
+.account-dropdown svg {
+    width: 17px;
+    color: #1d2d50;
+    font-size: 16px;
+}
+
+/* =========================
+   Logout
+========================= */
+
+.account-dropdown .dropdown-logout {
+    margin-top: 6px;
+    padding-top: 12px;
+
+    border-top: 1px solid #ededed;
+    border-radius: 0 0 7px 7px;
+
+    color: #c0392b;
+}
+
+.account-dropdown .dropdown-logout svg {
+    color: #c0392b;
+}
+
+.account-dropdown .dropdown-logout:hover {
+    background: #fff3f2;
+}
+
+/* =========================
+   Mobile
+========================= */
+
+@media (max-width: 768px) {
+
+    .account-menu {
+        width: 100%;
+        display: block;
+    }
+
+    .account-btn {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .account-dropdown {
+        position: static;
+
+        width: 100%;
+        margin-top: 5px;
+        padding: 5px;
+
+        border: none;
+        border-radius: 6px;
+        box-shadow: none;
+
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .account-dropdown::before {
+        display: none;
+    }
+
+    .account-dropdown a,
+    .account-dropdown button {
+        padding-left: 18px;
+    }
 }

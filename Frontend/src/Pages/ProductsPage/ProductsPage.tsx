@@ -27,7 +27,18 @@ type PaginatedProductsResponse = {
     totalPages: number;
 };
 
+type WishlistItem = {
+    productId: number;
+};
+
+type Wishlist = {
+    items: WishlistItem[];
+};
+
 function ProductsPage() {
+    const [wishlistProductIds, setWishlistProductIds] =
+        useState<number[]>([]);
+
     const [searchParams, setSearchParams] =
         useSearchParams();
 
@@ -71,6 +82,41 @@ function ProductsPage() {
     useEffect(() => {
         setCategoryId(categoryIdFromUrl);
     }, [categoryIdFromUrl]);
+
+    // =========================================
+    useEffect(() => {
+        const loadWishlist = async () => {
+            const token =
+                localStorage.getItem("token") ||
+                sessionStorage.getItem("token");
+
+            if (!token) {
+                setWishlistProductIds([]);
+                return;
+            }
+
+            try {
+                const data =
+                    await apiGet<Wishlist>(
+                        "/wishlist",
+                        true
+                    );
+
+                setWishlistProductIds(
+                    data.items.map(
+                        (item) => item.productId
+                    )
+                );
+            } catch (error) {
+                console.error(
+                    "Error loading wishlist:",
+                    error
+                );
+            }
+        };
+
+        loadWishlist();
+    }, []);
 
     // ==========================================
     // Load Categories
@@ -306,6 +352,9 @@ function ProductsPage() {
                                     <ProductCard
                                         key={product.id}
                                         product={product}
+                                        initialIsFavorite={
+                                            wishlistProductIds.includes(product.id)
+                                        }
                                     />
                                 ))}
                             </div>

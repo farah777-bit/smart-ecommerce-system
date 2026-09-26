@@ -979,3 +979,15 @@
         align-items: flex-start;
     }
 }
+.cart-feedback {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.cart-feedback-success {
+    color: green;
+}
+
+.cart-feedback-error {
+    color: red;
+}

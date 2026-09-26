@@ -93,10 +93,7 @@ public class AuthService : IAuthService
         );
     }
 
-    public async Task<(
-        LoginResponseDto? Response,
-        string? Error
-    )> LoginAsync(LoginDto loginDto)
+    public async Task<(LoginResponseDto? Response, string? Error )> LoginAsync(LoginDto loginDto)
     {
         var user =
             await _userManager.FindByEmailAsync(
@@ -185,43 +182,107 @@ new(
             )
         };
 
-foreach (var role in roles)
-{
-    claims.Add(
-        new Claim(ClaimTypes.Role, role)
-    );
-}
+        foreach (var role in roles)
+        {
+            claims.Add(
+                new Claim(ClaimTypes.Role, role)
+            );
+        }
 
-return claims;
+        return claims;
     }
 
     private string CreateToken(
         IEnumerable<Claim> claims,
         DateTime expiresAt)
-{
-    var jwtKey = _configuration["Jwt:Key"]
-        ?? throw new InvalidOperationException(
-            "JWT Key is missing."
+    {
+        var jwtKey = _configuration["Jwt:Key"]
+            ?? throw new InvalidOperationException(
+                "JWT Key is missing."
+            );
+
+        var key = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(jwtKey)
         );
 
-    var key = new SymmetricSecurityKey(
-        Encoding.UTF8.GetBytes(jwtKey)
-    );
+        var credentials = new SigningCredentials(
+            key,
+            SecurityAlgorithms.HmacSha256
+        );
 
-    var credentials = new SigningCredentials(
-        key,
-        SecurityAlgorithms.HmacSha256
-    );
+        var token = new JwtSecurityToken(
+            issuer: _configuration["Jwt:Issuer"],
+            audience: _configuration["Jwt:Audience"],
+            claims: claims,
+            expires: expiresAt,
+            signingCredentials: credentials
+        );
 
-    var token = new JwtSecurityToken(
-        issuer: _configuration["Jwt:Issuer"],
-        audience: _configuration["Jwt:Audience"],
-        claims: claims,
-        expires: expiresAt,
-        signingCredentials: credentials
-    );
+        return new JwtSecurityTokenHandler()
+            .WriteToken(token);
 
-    return new JwtSecurityTokenHandler()
-        .WriteToken(token);
-}
+    }
+    public async Task<(bool Success, string Message, string? Token)>
+       ForgotPasswordAsync(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user == null)
+        {
+            return (
+                true,
+                "If the email exists, a password reset link has been generated.",
+                null
+            );
+        }
+
+        var token =
+            await _userManager.GeneratePasswordResetTokenAsync(user);
+
+        return (
+            true,
+            "Password reset token generated successfully.",
+            token
+        );
+    }
+    public async Task<(
+       bool Success,
+       string Message,
+       IEnumerable<string>? Errors
+   )> ResetPasswordAsync(ResetPasswordDto resetDto)
+    {
+        var user =
+            await _userManager.FindByEmailAsync(resetDto.Email);
+
+        if (user == null)
+        {
+            return (
+                false,
+                "Invalid password reset request.",
+                null
+            );
+        }
+
+        var result =
+            await _userManager.ResetPasswordAsync(
+                user,
+                resetDto.Token,
+                resetDto.NewPassword
+            );
+
+        if (!result.Succeeded)
+        {
+            return (
+                false,
+                "Password reset failed.",
+                result.Errors.Select(error => error.Description)
+            );
+        }
+
+        return (
+            true,
+            "Password reset successfully.",
+            null
+        );
+    }
 }
