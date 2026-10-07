@@ -59,4 +59,43 @@ public class OrderRepository : IOrderRepository
                 order.UserId == userId
             );
     }
+
+    public async Task<List<Order>> GetAllAsync()
+    {
+        return await _context.Orders
+            .AsNoTracking()
+            .Include(order => order.Items)
+            .Include(order => order.Payments)
+            .Include(order => order.User)
+            .OrderByDescending(order => order.OrderDate)
+            .ToListAsync();
+    }
+
+    public async Task<Order?> GetByIdForAdminAsync(int orderId)
+    {
+        return await _context.Orders
+            .AsNoTracking()
+            .Include(order => order.Items)
+            .Include(order => order.Payments)
+            .Include(order => order.User)
+            .Include(order => order.StatusHistory)
+                .ThenInclude(history => history.ChangedByUser)
+            .FirstOrDefaultAsync(order => order.Id == orderId);
+    }
+
+    public async Task<Order?> GetByIdForUpdateAsync(
+    int orderId)
+    {
+        return await _context.Orders
+            .FirstOrDefaultAsync(order =>
+                order.Id == orderId
+            );
+    }
+
+    public async Task AddStatusHistoryAsync(
+        OrderStatusHistory history)
+    {
+        await _context.OrderStatusHistories
+            .AddAsync(history);
+    }
 }

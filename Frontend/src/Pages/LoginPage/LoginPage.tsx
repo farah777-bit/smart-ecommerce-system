@@ -64,7 +64,12 @@ function LoginPage() {
             );
 
             window.dispatchEvent(new Event("authChanged"));
-            navigate("/");
+            if (response.user.roles?.includes("Admin")) {
+                navigate("/admin")
+            }
+            else {
+                navigate("/")
+            }
         } catch (error) {
             console.error("Login error:", error);
 

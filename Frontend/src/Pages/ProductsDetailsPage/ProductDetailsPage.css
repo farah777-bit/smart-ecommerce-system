@@ -991,3 +991,50 @@
 .cart-feedback-error {
     color: red;
 }
+.details-wishlist-btn {
+    display: flex;
+    width: 100%;
+    min-height: 54px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    margin-top: 12px;
+    padding: 15px 24px;
+
+    border: 2px solid #2563eb;
+    border-radius: 13px;
+
+    background-color: #ffffff;
+    color: #2563eb;
+
+    font-size: 16px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.details-wishlist-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    background-color: #eff6ff;
+}
+
+.details-wishlist-btn.active {
+    border-color: #ef4444;
+    background-color: #fef2f2;
+    color: #ef4444;
+}
+
+.details-wishlist-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.details-wishlist-btn svg {
+    font-size: 19px;
+}

@@ -18,6 +18,7 @@ function FeaturedProducts() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [wishlistProductIds, setWishlistProductIds] = useState<number[]>([]);
 
     useEffect(() => {
 
@@ -51,7 +52,39 @@ function FeaturedProducts() {
 
         };
 
+        const loadWishlist = async () => {
+
+            const token =
+                localStorage.getItem("token") ||
+                sessionStorage.getItem("token");
+
+            if (!token) return;
+
+            try {
+
+                const data = await apiGet<any>(
+                    "/wishlist",
+                    true
+                );
+
+                const ids = data.items.map(
+                    (item: any) => item.productId
+                );
+
+                setWishlistProductIds(ids);
+
+            } catch (error) {
+
+                console.error(
+                    "Error loading wishlist:",
+                    error
+                );
+
+            }
+        };
+
         loadProducts();
+        loadWishlist();
 
     }, []);
 
@@ -83,14 +116,9 @@ function FeaturedProducts() {
                     <div className="products-grid">
 
                         {products.map(
-                            (product) => (
-
-                                <ProductCard
-                                    key={product.id}
-                                    product={product}
-                                />
-
-                            )
+                            (product) => (<ProductCard key={product.id} product={product} initialIsFavorite={
+                                wishlistProductIds.includes(product.id)
+                            } />)
                         )}
 
                     </div>

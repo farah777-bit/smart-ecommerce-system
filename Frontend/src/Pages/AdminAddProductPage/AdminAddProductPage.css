@@ -1,0 +1,160 @@
+.admin-add-product {
+    min-height: 80vh;
+    padding: 50px 7% 80px;
+    background-color: #f8fafc;
+}
+
+.admin-product-form-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.admin-product-form-header {
+    margin-bottom: 30px;
+}
+
+.admin-product-form-header>span {
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.admin-product-form-header h1 {
+    margin: 8px 0;
+    color: #0f172a;
+    font-size: 36px;
+}
+
+.admin-product-form-header p {
+    margin: 0;
+    color: #64748b;
+}
+
+.admin-product-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+
+    padding: 30px;
+
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+
+    box-shadow:
+        0 8px 25px rgba(15, 23, 42, 0.06);
+}
+
+.admin-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.admin-form-group label {
+    color: #334155;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.admin-form-group input,
+.admin-form-group select,
+.admin-form-group textarea {
+    width: 100%;
+    padding: 12px 14px;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+
+    font: inherit;
+    outline: none;
+
+    box-sizing: border-box;
+}
+
+.admin-form-group input:focus,
+.admin-form-group select:focus,
+.admin-form-group textarea:focus {
+    border-color: #2563eb;
+}
+
+.admin-form-group textarea {
+    resize: vertical;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.admin-active-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-active-field input {
+    width: 18px;
+    height: 18px;
+}
+
+.admin-active-field label {
+    color: #334155;
+    font-weight: 700;
+}
+
+.admin-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+
+    margin-top: 10px;
+}
+
+.admin-create-btn,
+.admin-cancel-btn {
+    padding: 12px 20px;
+
+    border: none;
+    border-radius: 9px;
+
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-create-btn {
+    background-color: #2563eb;
+    color: white;
+}
+
+.admin-create-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.admin-cancel-btn {
+    background-color: #e2e8f0;
+    color: #334155;
+}
+
+.admin-form-error {
+    margin: 0;
+    color: #dc2626;
+    font-weight: 600;
+}
+
+@media (max-width: 650px) {
+    .admin-add-product {
+        padding: 35px 18px 60px;
+    }
+
+    .admin-product-form {
+        grid-template-columns: 1fr;
+        padding: 20px;
+    }
+
+    .full-width {
+        grid-column: auto;
+    }
+}

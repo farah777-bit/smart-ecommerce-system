@@ -13,6 +13,8 @@ import {
     FaTruck,
     FaEdit,
     FaTrash,
+    FaHeart,
+    FaRegHeart,
 } from "react-icons/fa";
 
 import Navbar from "../../Components/Navbar/Navbar";
@@ -89,6 +91,8 @@ function ProductDetailsPage() {
     const [reviewError, setReviewError] = useState("");
     const [reviewMessage, setReviewMessage] = useState("");
 
+    const [isFavorite, setIsFavorite] = useState(false);
+    const [wishlistLoading, setWishlistLoading] = useState(false);
 
     const loadProduct = useCallback(
         async (showLoader = true) => {
@@ -154,6 +158,44 @@ function ProductDetailsPage() {
     );
 
     useEffect(() => {
+        const loadWishlist = async () => {
+            const token =
+                localStorage.getItem("token") ||
+                sessionStorage.getItem("token");
+
+            if (!product) return;
+
+            if (!token) {
+                setIsFavorite(false);
+                return;
+            }
+
+            try {
+                const data = await apiGet<any>(
+                    "/wishlist",
+                    true
+                );
+
+                const exists = data.items.some(
+                    (item: any) =>
+                        item.productId === product.id
+                );
+
+                setIsFavorite(exists);
+
+            } catch (error) {
+                console.error(
+                    "Error loading wishlist:",
+                    error
+                );
+            }
+        };
+
+        loadWishlist();
+
+    }, [product]);
+
+    useEffect(() => {
         void loadProduct();
     }, [loadProduct]);
 
@@ -167,6 +209,51 @@ function ProductDetailsPage() {
             )
         );
     };
+
+    const handleWishlist = async () => {
+        const token =
+            localStorage.getItem("token") ||
+            sessionStorage.getItem("token");
+
+        if (!token) {
+            navigate("/login");
+            return;
+        }
+
+        if (!product) return;
+
+        try {
+            setWishlistLoading(true);
+
+            if (isFavorite) {
+                await apiDelete<{ message: string }>(
+                    `/wishlist/items/${product.id}`,
+                    true
+                );
+
+                setIsFavorite(false);
+
+            } else {
+                await apiPost<{ message: string }>(
+                    `/wishlist/items/${product.id}`,
+                    {},
+                    true
+                );
+
+                setIsFavorite(true);
+            }
+
+        } catch (error) {
+            console.error(
+                "Could not update wishlist:",
+                error
+            );
+
+        } finally {
+            setWishlistLoading(false);
+        }
+    };
+    
 
     const decreaseQuantity = () => {
         setQuantity((previousQuantity) =>
@@ -542,6 +629,7 @@ function ProductDetailsPage() {
                             onClick={handleAddToCart}
                             disabled={isOutOfStock || isAddingToCart}
                         >
+
                             <FaShoppingCart />
 
                             {isOutOfStock
@@ -549,6 +637,28 @@ function ProductDetailsPage() {
                                 : isAddingToCart
                                     ? "Adding..."
                                     : "Add to Cart"}
+                        </button>
+                        <button
+                            type="button"
+                            className={
+                                isFavorite
+                                    ? "details-wishlist-btn active"
+                                    : "details-wishlist-btn"
+                            }
+                            onClick={handleWishlist}
+                            disabled={wishlistLoading}
+                        >
+                            {isFavorite ? (
+                                <FaHeart />
+                            ) : (
+                                <FaRegHeart />
+                            )}
+
+                            <span>
+                                {isFavorite
+                                    ? "Remove from Wishlist"
+                                    : "Add to Wishlist"}
+                            </span>
                         </button>
 
                         {cartMessage && (

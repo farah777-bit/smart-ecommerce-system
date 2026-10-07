@@ -15,4 +15,13 @@ public interface IOrderRepository
     Task<List<Order>> GetByUserIdAsync(int userId);
 
     Task<Order?> GetByIdAsync(int orderId, int userId);
+
+    Task<List<Order>> GetAllAsync();
+
+    Task<Order?> GetByIdForAdminAsync(int orderId);
+
+    Task<Order?> GetByIdForUpdateAsync(int orderId);
+
+    Task AddStatusHistoryAsync(
+        OrderStatusHistory history);
 }

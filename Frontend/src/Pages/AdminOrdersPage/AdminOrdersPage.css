@@ -1,0 +1,318 @@
+.admin-orders {
+    min-height: 80vh;
+    padding: 50px 7% 80px;
+    background-color: #f8fafc;
+}
+
+.admin-orders-container {
+    max-width: 1250px;
+    margin: 0 auto;
+}
+
+/* =========================
+   Header
+========================= */
+
+.admin-orders-header {
+    margin-bottom: 28px;
+}
+
+.admin-orders-header>span {
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.admin-orders-header h1 {
+    margin: 7px 0;
+    color: #0f172a;
+    font-size: 36px;
+    font-weight: 800;
+}
+
+.admin-orders-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 15px;
+}
+
+/* =========================
+   Error
+========================= */
+
+.admin-orders-error {
+    margin-bottom: 20px;
+    padding: 12px 15px;
+
+    border-radius: 9px;
+
+    background-color: #fef2f2;
+    color: #dc2626;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* =========================
+   Table Card
+========================= */
+
+.admin-orders-card {
+    overflow: hidden;
+
+    background-color: #ffffff;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+
+    box-shadow:
+        0 8px 25px rgba(15, 23, 42, 0.06);
+}
+
+.admin-orders-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.admin-orders-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* =========================
+   Table Header
+========================= */
+
+.admin-orders-table th {
+    padding: 15px 18px;
+
+    background-color: #f8fafc;
+    color: #64748b;
+
+    border-bottom: 1px solid #e2e8f0;
+
+    font-size: 12px;
+    font-weight: 800;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+
+    white-space: nowrap;
+}
+
+/* =========================
+   Table Rows
+========================= */
+
+.admin-orders-table td {
+    padding: 17px 18px;
+
+    color: #334155;
+
+    border-bottom: 1px solid #f1f5f9;
+
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+.admin-orders-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-orders-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.admin-orders-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.admin-orders-table td:first-child strong {
+    color: #0f172a;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* =========================
+   Customer
+========================= */
+
+.order-customer {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.order-customer strong {
+    color: #0f172a;
+    font-size: 14px;
+}
+
+.order-customer span {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+/* =========================
+   Status Badges
+========================= */
+
+.order-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 75px;
+
+    padding: 6px 10px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    text-transform: capitalize;
+}
+
+/* Pending */
+
+.order-badge.pending {
+    background-color: #fff7ed;
+    color: #c2410c;
+}
+
+/* Paid */
+
+.order-badge.paid {
+    background-color: #f0fdf4;
+    color: #15803d;
+}
+
+/* Processing */
+
+.order-badge.processing {
+    background-color: #eff6ff;
+    color: #2563eb;
+}
+
+/* Shipped */
+
+.order-badge.shipped {
+    background-color: #f5f3ff;
+    color: #7c3aed;
+}
+
+/* Delivered */
+
+.order-badge.delivered {
+    background-color: #ecfdf5;
+    color: #047857;
+}
+
+/* Cancelled */
+
+.order-badge.cancelled,
+.order-badge.canceled {
+    background-color: #fef2f2;
+    color: #dc2626;
+}
+
+/* Failed */
+
+.order-badge.failed {
+    background-color: #fef2f2;
+    color: #b91c1c;
+}
+
+/* =========================
+   View Button
+========================= */
+
+.view-order-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 38px;
+    height: 38px;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 9px;
+
+    background-color: #eff6ff;
+    color: #2563eb;
+
+    font-size: 15px;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.view-order-btn:hover {
+    background-color: #dbeafe;
+    transform: translateY(-1px);
+}
+
+
+/* =========================
+   Loading / Empty
+========================= */
+
+.admin-orders-message {
+    margin: 0;
+    padding: 45px 20px;
+
+    color: #64748b;
+
+    font-size: 15px;
+    text-align: center;
+}
+
+/* =========================
+   Tablet
+========================= */
+
+@media (max-width: 900px) {
+    .admin-orders {
+        padding-left: 4%;
+        padding-right: 4%;
+    }
+
+    .admin-orders-table {
+        min-width: 900px;
+    }
+}
+
+/* =========================
+   Mobile
+========================= */
+
+@media (max-width: 600px) {
+    .admin-orders {
+        padding: 35px 18px 60px;
+    }
+
+    .admin-orders-header h1 {
+        font-size: 30px;
+    }
+
+    .admin-orders-header {
+        margin-bottom: 22px;
+    }
+
+    .admin-orders-card {
+        border-radius: 12px;
+    }
+
+    .admin-orders-table th,
+    .admin-orders-table td {
+        padding: 14px;
+    }
+}

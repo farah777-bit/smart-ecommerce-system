@@ -93,4 +93,73 @@ public class OrdersController : ControllerBase
 
         return userId;
     }
+
+    [HttpGet("admin")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetAllOrders()
+    {
+        var orders = await _orderService
+            .GetAllOrdersAsync();
+
+        return Ok(orders);
+    }
+
+    [HttpGet("admin/{orderId:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetOrderForAdmin(
+    int orderId)
+    {
+        var order = await _orderService
+            .GetOrderForAdminAsync(orderId);
+
+        if (order == null)
+        {
+            return NotFound(new
+            {
+                message = "Order was not found."
+            });
+        }
+
+        return Ok(order);
+    }
+
+    [HttpPut("admin/{orderId:int}/status")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateOrderStatus(
+    int orderId,
+    UpdateOrderStatusDto updateDto)
+    {
+        try
+        {
+            var adminUserId = GetUserId();
+
+            var updated = await _orderService
+                .UpdateOrderStatusAsync(
+                    orderId,
+                    updateDto.Status,
+                    adminUserId
+                );
+
+            if (!updated)
+            {
+                return NotFound(new
+                {
+                    message = "Order was not found."
+                });
+            }
+
+            return Ok(new
+            {
+                message =
+                    "Order status updated successfully."
+            });
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(new
+            {
+                message = exception.Message
+            });
+        }
+    }
 }
