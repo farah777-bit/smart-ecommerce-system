@@ -7,7 +7,7 @@ import Navbar from "../../Components/Navbar/Navbar";
 import Footer from "../../Components/Footer/Footer";
 import ProductCard from "../../Components/ProductCard/ProductCard";
 
-import { apiGet } from "../../Services/api";
+import { apiGet, apiPost } from "../../Services/api";
 import type { Product } from "../../Types/Product";
 
 type Category = {
@@ -41,6 +41,9 @@ function ProductsPage() {
 
     const [searchParams, setSearchParams] =
         useSearchParams();
+
+    const [aiQuery, setAiQuery] = useState("");
+    const [activeAiQuery, setActiveAiQuery] = useState("");
 
     const categoryIdFromUrl =
         searchParams.get("categoryId") ?? "";
@@ -153,79 +156,80 @@ function ProductsPage() {
     // ==========================================
 
     useEffect(() => {
+        let ignore = false;
+
         const loadProducts = async () => {
             try {
                 setLoading(true);
                 setError("");
 
-                const params =
-                    new URLSearchParams();
+                let data: PaginatedProductsResponse;
 
-                if (search.trim()) {
-                    params.set(
-                        "search",
-                        search.trim()
+                if (activeAiQuery) {
+                    data = await apiPost<PaginatedProductsResponse>(
+                        `/ai-search?page=${currentPage}&pageSize=${pageSize}`,
+                        { query: activeAiQuery }
+                    );
+                } else {
+                    const params = new URLSearchParams();
+
+                    if (search.trim()) {
+                        params.set("search", search.trim());
+                    }
+
+                    if (categoryId) {
+                        params.set("categoryId", categoryId);
+                    }
+
+                    if (sortBy) {
+                        params.set("sortBy", sortBy);
+                    }
+
+                    params.set("page", currentPage.toString());
+                    params.set("pageSize", pageSize.toString());
+
+                    data = await apiGet<PaginatedProductsResponse>(
+                        `/products?${params.toString()}`
                     );
                 }
 
-                if (categoryId) {
-                    params.set(
-                        "categoryId",
-                        categoryId
-                    );
-                }
+                if (ignore) return;
 
-                if (sortBy) {
-                    params.set(
-                        "sortBy",
-                        sortBy
-                    );
-                }
-
-                params.set(
-                    "page",
-                    currentPage.toString()
-                );
-
-                params.set(
-                    "pageSize",
-                    pageSize.toString()
-                );
-
-                const endpoint =
-                    `/products?${params.toString()}`;
-
-                const data =
-                    await apiGet<PaginatedProductsResponse>(
-                        endpoint
-                    );
                 setProducts(data.items);
                 setTotalPages(data.totalPages);
                 setTotalCount(data.totalCount);
             } catch (error) {
-                console.error(
-                    "Error loading products:",
-                    error
-                );
+                if (ignore) return;
+
+                console.error("Error loading products:", error);
 
                 setError(
-                    "Could not load products."
+                    activeAiQuery
+                        ? "Smart search failed. Please try again."
+                        : "Could not load products."
                 );
 
                 setProducts([]);
                 setTotalCount(0);
                 setTotalPages(1);
             } finally {
-                setLoading(false);
+                if (!ignore) {
+                    setLoading(false);
+                }
             }
         };
 
         loadProducts();
+
+        return () => {
+            ignore = true;
+        };
     }, [
         search,
         categoryId,
         sortBy,
         currentPage,
+        activeAiQuery,
     ]);
 
     // ==========================================
@@ -252,6 +256,20 @@ function ProductsPage() {
 
         setSearchParams(updatedParams);
     };
+    const handleAiSearch = () => {
+        const query = aiQuery.trim();
+
+        if (!query || loading) return;
+
+        setCurrentPage(1);
+        setActiveAiQuery(query);
+    };
+
+    const handleClearAiSearch = () => {
+        setAiQuery("");
+        setActiveAiQuery("");
+        setCurrentPage(1);
+    };
 
     return (
         <>
@@ -259,8 +277,51 @@ function ProductsPage() {
 
             <section className="products-page">
                 <h1>All Products</h1>
+                <form
+                    className="ai-search"
+                    onSubmit={(event) => {
+                        event.preventDefault();
+                        handleAiSearch();
+                    }}
+                >
+                    <input
+                        type="text"
+                        placeholder="what do you think??"
+                        aria-label="Smart product search"
+                        value={aiQuery}
+                        maxLength={500}
+                        onChange={(event) =>
+                            setAiQuery(event.target.value)
+                        }
+                    />
 
-                <div className="filters">
+                    <button
+                        type="submit"
+                        disabled={loading || !aiQuery.trim()}
+                    >
+                        Smart Search
+                    </button>
+
+                    {activeAiQuery && (
+                        <button
+                            type="button"
+                            onClick={handleClearAiSearch}
+                        >
+                            Clear Smart Search
+                        </button>
+                    )}
+                </form>
+
+                {activeAiQuery && (
+                    <p>
+                        Smart search results for: {activeAiQuery}
+                    </p>
+                )}
+
+                <fieldset
+                    className="filters"
+                    disabled={Boolean(activeAiQuery)}
+                >
                     <input
                         type="text"
                         placeholder="Search products..."
@@ -314,7 +375,7 @@ function ProductsPage() {
                             Name
                         </option>
                     </select>
-                </div>
+                </fieldset>
 
                 {!loading &&
                     !error &&

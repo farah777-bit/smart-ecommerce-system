@@ -17,13 +17,25 @@ function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [accountOpen, setAccountOpen] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     const checkLoginStatus = () => {
-        const token =
-            localStorage.getItem("token") ||
-            sessionStorage.getItem("token");
+        const storage = localStorage.getItem("token")
+            ? localStorage
+            : sessionStorage;
 
+        const token = storage.getItem("token");
         setIsLoggedIn(Boolean(token));
+
+        try {
+            const user = JSON.parse(storage.getItem("user") || "null");
+
+            setIsAdmin(
+                Boolean(token) && Boolean(user?.roles?.includes("Admin"))
+            );
+        } catch {
+            setIsAdmin(false);
+        }
     };
 
     useEffect(() => {
@@ -51,6 +63,7 @@ function Navbar() {
         sessionStorage.removeItem("user");
 
         setIsLoggedIn(false);
+        setIsAdmin(false);
         setMenuOpen(false);
         setAccountOpen(false);
 
@@ -116,6 +129,11 @@ function Navbar() {
                                     Wishlist
                                 </Link>
 
+                                {isAdmin && (
+                                    <Link to="/admin" onClick={closeMenu}>
+                                        Admin Dashboard
+                                    </Link>
+                                )}
                                 <button
                                     type="button"
                                     onClick={handleLogout}
