@@ -238,6 +238,11 @@ builder.Services.AddCors(options =>
 });
 
 
+builder.Services.AddHttpClient<IAiSearchService, AiSearchService>(
+    client => client.Timeout = TimeSpan.FromSeconds(30)
+);
+
+
 // =====================================================
 // Build Application
 // =====================================================

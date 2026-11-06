@@ -6,13 +6,15 @@ namespace Backend.Repositories.Interfaces;
 public interface IProductRepository
 {
     Task<(IReadOnlyList<ProductDto> Items, int TotalCount)>
-        GetPagedAsync(
-            string? search,
-            int? categoryId,
-            string? sortBy,
-            int page,
-            int pageSize
-        );
+    GetPagedAsync(
+        string? search,
+        int? categoryId,
+        string? sortBy,
+        int page,
+        int pageSize,
+        decimal? minPrice = null,
+        decimal? maxPrice = null
+    );
 
     Task<ProductDto?> GetByIdAsync(int id);
 

@@ -17,12 +17,14 @@ public class ProductRepository : IProductRepository
     }
 
     public async Task<(IReadOnlyList<ProductDto> Items, int TotalCount)>
-        GetPagedAsync(
-            string? search,
-            int? categoryId,
-            string? sortBy,
-            int page,
-            int pageSize)
+    GetPagedAsync(
+        string? search,
+        int? categoryId,
+        string? sortBy,
+        int page,
+        int pageSize,
+        decimal? minPrice = null,
+        decimal? maxPrice = null)
     {
         var query = _context.Products
             .AsNoTracking()
@@ -47,6 +49,16 @@ public class ProductRepository : IProductRepository
             );
         }
 
+        if (minPrice.HasValue)
+        {
+            query = query.Where(p => p.Price >= minPrice.Value);
+        }
+
+        if (maxPrice.HasValue)
+        {
+            query = query.Where(p => p.Price <= maxPrice.Value);
+        }
+        
         query = sortBy switch
         {
             "price-low" =>
