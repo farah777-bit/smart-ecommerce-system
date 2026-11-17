@@ -49,15 +49,18 @@ public class AiSearchController : ControllerBase
             cancellationToken
         );
 
+
         var result = await _productRepository.GetPagedAsync(
             search: filters.Search,
-            categoryId: null,
+            categoryId: filters.CategoryId,
             sortBy: filters.SortBy,
             page: page,
             pageSize: pageSize,
             minPrice: filters.MinPrice,
-            maxPrice: filters.MaxPrice
+            maxPrice: filters.MaxPrice,
+            brand: filters.Brand
         );
+
 
         return Ok(new PagedResult<ProductDto>
         {

@@ -13,7 +13,8 @@ public interface IProductRepository
         int page,
         int pageSize,
         decimal? minPrice = null,
-        decimal? maxPrice = null
+        decimal? maxPrice = null,
+        string? brand = null
     );
 
     Task<ProductDto?> GetByIdAsync(int id);

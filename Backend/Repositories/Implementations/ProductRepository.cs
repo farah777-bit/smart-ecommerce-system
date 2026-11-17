@@ -24,7 +24,8 @@ public class ProductRepository : IProductRepository
         int page,
         int pageSize,
         decimal? minPrice = null,
-        decimal? maxPrice = null)
+        decimal? maxPrice = null,
+        string? brand = null)
     {
         var query = _context.Products
             .AsNoTracking()
@@ -37,7 +38,21 @@ public class ProductRepository : IProductRepository
 
             query = query.Where(p =>
                 p.Name.Contains(searchTerm) ||
-                p.Description.Contains(searchTerm)
+                (p.Description != null &&
+                 p.Description.Contains(searchTerm)) ||
+                p.Category.Name.Contains(searchTerm) ||
+                (p.Category.ParentCategory != null &&
+                 p.Category.ParentCategory.Name.Contains(searchTerm))
+            );
+        }
+        if (!string.IsNullOrWhiteSpace(brand))
+        {
+            var brandTerm = brand.Trim();
+
+            query = query.Where(p =>
+               p.Name.Contains(brandTerm) ||
+        (p.Description != null &&
+         p.Description.Contains(brandTerm))
             );
         }
 
@@ -58,7 +73,7 @@ public class ProductRepository : IProductRepository
         {
             query = query.Where(p => p.Price <= maxPrice.Value);
         }
-        
+
         query = sortBy switch
         {
             "price-low" =>
