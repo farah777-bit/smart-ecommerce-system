@@ -52,5 +52,7 @@ namespace Backend.Models
 
         public ICollection<InventoryTransaction> InventoryTransactions { get; set; }
             = new List<InventoryTransaction>();
+        public ICollection<ProductAttributeValue> AttributeValues { get; set; }
+= new List<ProductAttributeValue>();
     }
 }

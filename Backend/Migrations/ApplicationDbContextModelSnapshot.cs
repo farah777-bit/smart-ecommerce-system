@@ -593,6 +593,56 @@ namespace Backend.Migrations
                     b.ToTable("Products");
                 });
 
+            modelBuilder.Entity("Backend.Models.ProductAttribute", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("ProductAttributes");
+                });
+
+            modelBuilder.Entity("Backend.Models.ProductAttributeValue", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ProductAttributeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductAttributeId");
+
+                    b.HasIndex("ProductId", "ProductAttributeId")
+                        .IsUnique();
+
+                    b.ToTable("ProductAttributeValues");
+                });
+
             modelBuilder.Entity("Backend.Models.ProductImage", b =>
                 {
                     b.Property<int>("Id")
@@ -1010,6 +1060,25 @@ namespace Backend.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("Backend.Models.ProductAttributeValue", b =>
+                {
+                    b.HasOne("Backend.Models.ProductAttribute", "ProductAttribute")
+                        .WithMany("Values")
+                        .HasForeignKey("ProductAttributeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Backend.Models.Product", "Product")
+                        .WithMany("AttributeValues")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ProductAttribute");
+                });
+
             modelBuilder.Entity("Backend.Models.ProductImage", b =>
                 {
                     b.HasOne("Backend.Models.Product", "Product")
@@ -1175,6 +1244,8 @@ namespace Backend.Migrations
 
             modelBuilder.Entity("Backend.Models.Product", b =>
                 {
+                    b.Navigation("AttributeValues");
+
                     b.Navigation("CartItems");
 
                     b.Navigation("Images");
@@ -1186,6 +1257,11 @@ namespace Backend.Migrations
                     b.Navigation("Reviews");
 
                     b.Navigation("WishlistItems");
+                });
+
+            modelBuilder.Entity("Backend.Models.ProductAttribute", b =>
+                {
+                    b.Navigation("Values");
                 });
 
             modelBuilder.Entity("Backend.Models.Wishlist", b =>

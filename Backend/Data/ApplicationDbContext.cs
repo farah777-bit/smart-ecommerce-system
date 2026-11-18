@@ -22,6 +22,9 @@ public class ApplicationDbContext :
 
     public DbSet<Category> Categories { get; set; }
     public DbSet<Product> Products { get; set; }
+    public DbSet<ProductAttribute> ProductAttributes { get; set; }
+
+    public DbSet<ProductAttributeValue> ProductAttributeValues { get; set; }
     public DbSet<ProductImage> ProductImages { get; set; }
 
     public DbSet<Cart> Carts { get; set; }
@@ -51,6 +54,50 @@ public class ApplicationDbContext :
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+
+        // =====================================================
+        // PRODUCT ATTRIBUTES
+        // =====================================================
+
+        // Product 1 ---- N ProductAttributeValues
+        modelBuilder.Entity<ProductAttributeValue>()
+            .HasOne(pav => pav.Product)
+            .WithMany(p => p.AttributeValues)
+            .HasForeignKey(pav => pav.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // ProductAttribute 1 ---- N ProductAttributeValues
+        modelBuilder.Entity<ProductAttributeValue>()
+            .HasOne(pav => pav.ProductAttribute)
+            .WithMany(pa => pa.Values)
+            .HasForeignKey(pav => pav.ProductAttributeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Prevent duplicate attributes for the same product
+        modelBuilder.Entity<ProductAttributeValue>()
+            .HasIndex(pav => new
+            {
+                pav.ProductId,
+                pav.ProductAttributeId
+            })
+            .IsUnique();
+
+        // Prevent duplicate attribute names
+        modelBuilder.Entity<ProductAttribute>()
+            .HasIndex(pa => pa.Name)
+            .IsUnique();
+
+        // Attribute configuration
+        modelBuilder.Entity<ProductAttribute>()
+            .Property(pa => pa.Name)
+            .HasMaxLength(100)
+            .IsRequired();
+
+        modelBuilder.Entity<ProductAttributeValue>()
+            .Property(pav => pav.Value)
+            .HasMaxLength(500)
+            .IsRequired();
 
 
         // =====================================================
